@@ -43,11 +43,11 @@ public class TerraSMPShop extends NovaModule implements Listener {
 		trades.add(new VillagerTrade(emeralds(1), new ItemBuilder(Material.SLIME_BALL).setAmount(2).build(), MAX_TRADE_USES));
 		trades.add(new VillagerTrade(emeralds(2), new ItemBuilder(Material.QUARTZ).setAmount(16).build(), MAX_TRADE_USES));
 		trades.add(new VillagerTrade(emeralds(64), emeralds(64), new ItemBuilder(Material.TOTEM).setAmount(1).build(), MAX_TRADE_USES));
-		trades.add(new VillagerTrade(emeralds(4), new ItemBuilder(Material.NETHER_WARTS).setAmount(1).build(), MAX_TRADE_USES));
 		trades.add(new VillagerTrade(emeralds(10), new ItemBuilder(Material.SOUL_SAND).setAmount(16).build(), MAX_TRADE_USES));
 		trades.add(new VillagerTrade(emeralds(10), new ItemBuilder(Material.BLAZE_ROD).setAmount(1).build(), MAX_TRADE_USES));
 		trades.add(new VillagerTrade(emeralds(5), new ItemBuilder(Material.GHAST_TEAR).setAmount(1).build(), MAX_TRADE_USES));
 		trades.add(new VillagerTrade(emeralds(5), new ItemBuilder(Material.MAGMA_CREAM).setAmount(1).build(), MAX_TRADE_USES));
+		trades.add(new VillagerTrade(emeralds(1), new ItemBuilder(Material.SULPHUR).setAmount(1).build(), MAX_TRADE_USES));
 	}
 
 	@Override

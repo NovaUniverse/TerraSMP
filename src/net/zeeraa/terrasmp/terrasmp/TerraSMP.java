@@ -15,8 +15,10 @@ import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -40,6 +42,7 @@ import net.zeeraa.terrasmp.terrasmp.data.PlayerDataManager;
 import net.zeeraa.terrasmp.terrasmp.modules.DisableEyeOfEnder;
 import net.zeeraa.terrasmp.terrasmp.modules.DropPlayerHeadsOnKill;
 import net.zeeraa.terrasmp.terrasmp.modules.HiddenPlayers;
+import net.zeeraa.terrasmp.terrasmp.modules.NoCrystalPvP;
 import net.zeeraa.terrasmp.terrasmp.modules.TerraSMPShop;
 import net.zeeraa.terrasmp.terrasmp.modules.TerraSMPWhitelistOnJoin;
 import net.zeeraa.terrasmp.terrasmp.signs.ContinentSelectorSigns;
@@ -162,6 +165,7 @@ public class TerraSMP extends NovaPlugin implements Listener {
 		loadModule(TerraSMPWhitelistOnJoin.class);
 		loadModule(ContinentSelectorSigns.class, true);
 		loadModule(DropPlayerHeadsOnKill.class, true);
+		loadModule(NoCrystalPvP.class, true);
 		loadModule(TerraSMPShop.class, true);
 		loadModule(DisableEyeOfEnder.class, true);
 
@@ -218,6 +222,11 @@ public class TerraSMP extends NovaPlugin implements Listener {
 		}
 
 		PlayerDataManager.unloadPlayerData(player.getUniqueId());
+	}
+	
+	@EventHandler(priority = EventPriority.LOWEST)
+	public void onPlayerDeath(PlayerDeathEvent e) {
+		e.setDeathMessage(ChatColor.RED + e.getDeathMessage());
 	}
 
 	@EventHandler

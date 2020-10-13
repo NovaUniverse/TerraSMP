@@ -80,6 +80,10 @@
       <id>zeeraas-repo</id>
       <url>https://nexus.zeeraa.net/repository/maven-group/</url>
     </repository>
+    <repository>
+      <id>masecla-repo</id>
+      <url>https://masecla.dev/nexus/repository/maven-snapshots/</url>
+    </repository>
   </repositories>
   <dependencies>
     <dependency>
