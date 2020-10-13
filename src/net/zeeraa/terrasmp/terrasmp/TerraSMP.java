@@ -10,6 +10,9 @@ import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -27,12 +30,17 @@ import net.zeeraa.novacore.commons.NovaCommons;
 import net.zeeraa.novacore.commons.log.Log;
 import net.zeeraa.novacore.spigot.command.CommandRegistry;
 import net.zeeraa.novacore.spigot.novaplugin.NovaPlugin;
+import net.zeeraa.terrasmp.terrasmp.commands.shop.ShopCommand;
+import net.zeeraa.terrasmp.terrasmp.commands.systemmessage.SystemMessageCommand;
 import net.zeeraa.terrasmp.terrasmp.commands.terrasmp.TerraSMPCommand;
 import net.zeeraa.terrasmp.terrasmp.data.Continent;
 import net.zeeraa.terrasmp.terrasmp.data.ContinentReader;
 import net.zeeraa.terrasmp.terrasmp.data.PlayerData;
 import net.zeeraa.terrasmp.terrasmp.data.PlayerDataManager;
 import net.zeeraa.terrasmp.terrasmp.modules.DisableEyeOfEnder;
+import net.zeeraa.terrasmp.terrasmp.modules.DropPlayerHeadsOnKill;
+import net.zeeraa.terrasmp.terrasmp.modules.HiddenPlayers;
+import net.zeeraa.terrasmp.terrasmp.modules.TerraSMPShop;
 import net.zeeraa.terrasmp.terrasmp.modules.TerraSMPWhitelistOnJoin;
 import net.zeeraa.terrasmp.terrasmp.signs.ContinentSelectorSigns;
 
@@ -44,6 +52,9 @@ public class TerraSMP extends NovaPlugin implements Listener {
 	private File playerDataFolder;
 
 	private Location spawnLocation;
+
+	private String systemMessage;
+	private BossBar systemMessageBar;
 
 	public static TerraSMP getInstance() {
 		return instance;
@@ -73,12 +84,47 @@ public class TerraSMP extends NovaPlugin implements Listener {
 
 		return null;
 	}
+	
+	public void removeSystemMessage() {
+		setSystemMessage(null);
+	}
+
+	public void setSystemMessage(String systemMessage) {
+		this.systemMessage = systemMessage;
+
+		if (systemMessage == null) {
+			if (systemMessageBar != null) {
+				systemMessageBar.removeAll();
+				systemMessageBar = null;
+			}
+		} else {
+			if (systemMessageBar == null) {
+				systemMessageBar = Bukkit.getServer().createBossBar("System Message", BarColor.BLUE, BarStyle.SOLID);
+			}
+
+			systemMessageBar.setVisible(true);
+			systemMessageBar.setTitle(ChatColor.RED + "" + ChatColor.BOLD + "System Message: " + ChatColor.RESET + ChatColor.translateAlternateColorCodes('&', systemMessage));
+
+			for (Player player : Bukkit.getServer().getOnlinePlayers()) {
+				if (!systemMessageBar.getPlayers().contains(player)) {
+					systemMessageBar.addPlayer(player);
+				}
+			}
+		}
+	}
+
+	public String getSystemMessage() {
+		return systemMessage;
+	}
 
 	@Override
 	public void onEnable() {
 		TerraSMP.instance = this;
 		continents = new ArrayList<Continent>();
 		playerDataFolder = new File(getDataFolder().getPath() + File.separator + "userdata");
+
+		systemMessage = null;
+		systemMessageBar = null;
 
 		try {
 			FileUtils.forceMkdir(getDataFolder());
@@ -105,20 +151,26 @@ public class TerraSMP extends NovaPlugin implements Listener {
 		} else {
 			Log.error("TerraSMP", "Continent file: " + continentFile.getPath() + " does not exist");
 		}
-
-		CommandRegistry.registerCommand(new TerraSMPCommand());
-
+		
 		Bukkit.getServer().getPluginManager().registerEvents(this, this);
 
 		for (Player player : Bukkit.getServer().getOnlinePlayers()) {
 			PlayerDataManager.getPlayerData(player.getUniqueId());
 		}
 
+		loadModule(HiddenPlayers.class, true);
 		loadModule(TerraSMPWhitelistOnJoin.class);
 		loadModule(ContinentSelectorSigns.class, true);
+		loadModule(DropPlayerHeadsOnKill.class, true);
+		loadModule(TerraSMPShop.class, true);
 		loadModule(DisableEyeOfEnder.class, true);
+
+		CommandRegistry.registerCommand(new TerraSMPCommand());
+		CommandRegistry.registerCommand(new SystemMessageCommand());
+		CommandRegistry.registerCommand(new ShopCommand());
+
 		
-		if(getConfig().getBoolean("whitelist_player_after_join")) {
+		if (getConfig().getBoolean("whitelist_player_after_join")) {
 			enableModule(TerraSMPWhitelistOnJoin.class);
 		}
 	}
@@ -135,12 +187,19 @@ public class TerraSMP extends NovaPlugin implements Listener {
 	public void onPlayerJoin(PlayerJoinEvent e) {
 		Player player = e.getPlayer();
 
+		if (systemMessageBar != null) {
+			if (!systemMessageBar.getPlayers().contains(player)) {
+				systemMessageBar.addPlayer(player);
+			}
+		}
+
 		PlayerData playerData = PlayerDataManager.getPlayerData(player.getUniqueId());
 
 		if (getContinent(playerData.getStarterContinent()) == null) {
 			NovaCommons.getAbstractAsyncManager().runSync(new Runnable() {
 				@Override
 				public void run() {
+					HiddenPlayers.getInstance().hidePlayer(player);
 					player.sendMessage(ChatColor.GOLD + "Please select your starter continent");
 					player.teleport(spawnLocation);
 				}
@@ -151,6 +210,12 @@ public class TerraSMP extends NovaPlugin implements Listener {
 	@EventHandler
 	public void onPlayerQuit(PlayerQuitEvent e) {
 		Player player = e.getPlayer();
+		
+		if (systemMessageBar != null) {
+			if (systemMessageBar.getPlayers().contains(player)) {
+				systemMessageBar.removePlayer(player);
+			}
+		}
 
 		PlayerDataManager.unloadPlayerData(player.getUniqueId());
 	}

@@ -17,6 +17,7 @@ import net.zeeraa.novacore.spigot.module.NovaModule;
 import net.zeeraa.terrasmp.terrasmp.TerraSMP;
 import net.zeeraa.terrasmp.terrasmp.data.Continent;
 import net.zeeraa.terrasmp.terrasmp.data.PlayerDataManager;
+import net.zeeraa.terrasmp.terrasmp.modules.HiddenPlayers;
 
 public class ContinentSelectorSigns extends NovaModule implements Listener {
 	@Override
@@ -43,10 +44,12 @@ public class ContinentSelectorSigns extends NovaModule implements Listener {
 		}
 	}
 
-	@EventHandler(priority = EventPriority.NORMAL)
+	@EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = false)
 	public void onPlayerInteract(PlayerInteractEvent e) {
-		if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+		if (e.getAction() == Action.RIGHT_CLICK_BLOCK || e.getAction() == Action.LEFT_CLICK_BLOCK) {
 			if (e.getClickedBlock().getType() == Material.SIGN_POST || e.getClickedBlock().getType() == Material.WALL_SIGN) {
+				Log.trace(getName(), e.getPlayer() + " interacted with sign. " + e.getAction().name() + ". Canceled: " + e.isCancelled());
+
 				if (e.getPlayer().getGameMode() != GameMode.SPECTATOR) {
 					if (e.getClickedBlock().getState() instanceof Sign) {
 						Sign sign = (Sign) e.getClickedBlock().getState();
@@ -58,16 +61,18 @@ public class ContinentSelectorSigns extends NovaModule implements Listener {
 								if (continent.getDisplayName().equalsIgnoreCase(sign.getLine(1))) {
 									PlayerDataManager.getPlayerData(e.getPlayer().getUniqueId()).setStarterContinent(continent.getName());
 									PlayerDataManager.savePlayerData(e.getPlayer().getUniqueId());
-									
+
+									HiddenPlayers.getInstance().showPlayer(e.getPlayer());
+
 									Location location = continent.getRandomSpawnLocation();
-									
-									if(location != null) {
+
+									if (location != null) {
 										e.getPlayer().teleport(location.add(0, 2, 0));
 										return;
 									}
-									
+
 									e.getPlayer().sendMessage(ChatColor.RED + "Failed to find a spawn location. Please try again");
-									
+
 									return;
 								}
 							}

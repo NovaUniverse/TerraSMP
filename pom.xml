@@ -102,6 +102,11 @@
 			<id>zeeraas-repo</id>
 			<url>https://nexus.zeeraa.net/repository/maven-group/</url>
 		</repository>
+
+		<repository>
+			<id>masecla-repo</id>
+			<url>https://masecla.dev/nexus/repository/maven-snapshots/</url>
+		</repository>
 	</repositories>
 
 	<distributionManagement>
@@ -152,12 +157,18 @@
 			<version>2.14.0</version>
 			<scope>provided</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.massivecraft</groupId>
 			<artifactId>MassiveCore</artifactId>
 			<version>2.14.0</version>
 			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>masecla</groupId>
+			<artifactId>VillagerGUIApi</artifactId>
+			<version>0.0.1-20200712.201012-2</version>
 		</dependency>
 	</dependencies>
 </project>
