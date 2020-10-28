@@ -13,6 +13,9 @@ import org.bukkit.Location;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -23,15 +26,17 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.plugin.Plugin;
-
 import com.massivecraft.factions.entity.Faction;
 import com.massivecraft.factions.entity.FactionColl;
 import com.massivecraft.factions.entity.MPlayer;
 
 import net.zeeraa.novacore.commons.NovaCommons;
 import net.zeeraa.novacore.commons.log.Log;
+import net.zeeraa.novacore.commons.utils.TextUtils;
 import net.zeeraa.novacore.spigot.command.CommandRegistry;
 import net.zeeraa.novacore.spigot.novaplugin.NovaPlugin;
+import net.zeeraa.terrasmp.terrasmp.commands.map.MapCommand;
+import net.zeeraa.terrasmp.terrasmp.commands.removebed.RemoveBedCommand;
 import net.zeeraa.terrasmp.terrasmp.commands.shop.ShopCommand;
 import net.zeeraa.terrasmp.terrasmp.commands.systemmessage.SystemMessageCommand;
 import net.zeeraa.terrasmp.terrasmp.commands.terrasmp.TerraSMPCommand;
@@ -39,8 +44,11 @@ import net.zeeraa.terrasmp.terrasmp.data.Continent;
 import net.zeeraa.terrasmp.terrasmp.data.ContinentReader;
 import net.zeeraa.terrasmp.terrasmp.data.PlayerData;
 import net.zeeraa.terrasmp.terrasmp.data.PlayerDataManager;
+import net.zeeraa.terrasmp.terrasmp.misc.PlayerMessages;
 import net.zeeraa.terrasmp.terrasmp.modules.DisableEyeOfEnder;
 import net.zeeraa.terrasmp.terrasmp.modules.DropPlayerHeadsOnKill;
+import net.zeeraa.terrasmp.terrasmp.modules.FactionPowerNerf;
+import net.zeeraa.terrasmp.terrasmp.modules.HiddenJoinQuitMessages;
 import net.zeeraa.terrasmp.terrasmp.modules.HiddenPlayers;
 import net.zeeraa.terrasmp.terrasmp.modules.NoCrystalPvP;
 import net.zeeraa.terrasmp.terrasmp.modules.TerraSMPShop;
@@ -87,7 +95,7 @@ public class TerraSMP extends NovaPlugin implements Listener {
 
 		return null;
 	}
-	
+
 	public void removeSystemMessage() {
 		setSystemMessage(null);
 	}
@@ -154,7 +162,7 @@ public class TerraSMP extends NovaPlugin implements Listener {
 		} else {
 			Log.error("TerraSMP", "Continent file: " + continentFile.getPath() + " does not exist");
 		}
-		
+
 		Bukkit.getServer().getPluginManager().registerEvents(this, this);
 
 		for (Player player : Bukkit.getServer().getOnlinePlayers()) {
@@ -168,15 +176,51 @@ public class TerraSMP extends NovaPlugin implements Listener {
 		loadModule(NoCrystalPvP.class, true);
 		loadModule(TerraSMPShop.class, true);
 		loadModule(DisableEyeOfEnder.class, true);
+		loadModule(FactionPowerNerf.class, true);
+		loadModule(HiddenJoinQuitMessages.class, true);
 
 		CommandRegistry.registerCommand(new TerraSMPCommand());
 		CommandRegistry.registerCommand(new SystemMessageCommand());
 		CommandRegistry.registerCommand(new ShopCommand());
+		CommandRegistry.registerCommand(new MapCommand());
+		CommandRegistry.registerCommand(new RemoveBedCommand());
 
-		
+		FactionPowerNerf.getInstance().setPlayerLimit(getConfig().getInt("faction_nerf_player_limit"));
+
+		getCommand("suicide").setExecutor(new CommandExecutor() {
+			@Override
+			public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+				if (sender instanceof Player) {
+					if (args.length == 1) {
+						if (args[0].equalsIgnoreCase("confirm")) {
+							Player p = (Player) sender;
+
+							MPlayer mp = MPlayer.get(p.getUniqueId());
+
+							mp.setPower(0.0);
+
+							p.setHealth(0);
+
+							return true;
+						}
+					}
+
+					sender.sendMessage(ChatColor.RED + "Warning: Using /suicide will reset your power to 0");
+					sender.sendMessage(ChatColor.RED + "Please use" + ChatColor.AQUA + " /suicide confirm" + ChatColor.RED + " to do this");
+
+					return true;
+				} else {
+					sender.sendMessage(ChatColor.RED + "Only players can use this command");
+				}
+				return false;
+			}
+		});
+
 		if (getConfig().getBoolean("whitelist_player_after_join")) {
 			enableModule(TerraSMPWhitelistOnJoin.class);
 		}
+
+		Log.info("TerraSMP", "Faction power nerf limit: " + FactionPowerNerf.getInstance().getPlayerLimit());
 	}
 
 	@Override
@@ -187,7 +231,7 @@ public class TerraSMP extends NovaPlugin implements Listener {
 		PlayerDataManager.unloadAll();
 	}
 
-	@EventHandler
+	@EventHandler(priority = EventPriority.HIGH)
 	public void onPlayerJoin(PlayerJoinEvent e) {
 		Player player = e.getPlayer();
 
@@ -209,12 +253,14 @@ public class TerraSMP extends NovaPlugin implements Listener {
 				}
 			}, 4L);
 		}
+
+		e.setJoinMessage(PlayerMessages.getJoinMessage(player));
 	}
 
-	@EventHandler
+	@EventHandler(priority = EventPriority.HIGH)
 	public void onPlayerQuit(PlayerQuitEvent e) {
 		Player player = e.getPlayer();
-		
+
 		if (systemMessageBar != null) {
 			if (systemMessageBar.getPlayers().contains(player)) {
 				systemMessageBar.removePlayer(player);
@@ -222,11 +268,14 @@ public class TerraSMP extends NovaPlugin implements Listener {
 		}
 
 		PlayerDataManager.unloadPlayerData(player.getUniqueId());
+
+		e.setQuitMessage(PlayerMessages.getLeaveMessage(player));
 	}
-	
+
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlayerDeath(PlayerDeathEvent e) {
-		e.setDeathMessage(ChatColor.RED + e.getDeathMessage());
+		String newMessage = ChatColor.DARK_GRAY + "[" + ChatColor.DARK_RED + TextUtils.ICON_SKULL_AND_CROSSBONES + ChatColor.DARK_GRAY + "] " + ChatColor.RED + e.getDeathMessage();
+		e.setDeathMessage(newMessage);
 	}
 
 	@EventHandler

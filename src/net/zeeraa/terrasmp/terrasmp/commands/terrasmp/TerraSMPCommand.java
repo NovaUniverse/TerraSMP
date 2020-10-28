@@ -6,6 +6,8 @@ import org.bukkit.permissions.PermissionDefault;
 
 import net.zeeraa.novacore.spigot.command.NovaCommand;
 import net.zeeraa.terrasmp.terrasmp.commands.terrasmp.debug.TerraSMPDebugCommand;
+import net.zeeraa.terrasmp.terrasmp.commands.terrasmp.fake.FakeJoin;
+import net.zeeraa.terrasmp.terrasmp.commands.terrasmp.fake.FakeLeave;
 
 public class TerraSMPCommand extends NovaCommand {
 	public TerraSMPCommand() {
@@ -17,6 +19,9 @@ public class TerraSMPCommand extends NovaCommand {
 		setEmptyTabMode(true);
 		
 		addSubCommand(new TerraSMPDebugCommand());
+		
+		addSubCommand(new FakeJoin());
+		addSubCommand(new FakeLeave());
 		
 		addHelpSubCommand();
 	}

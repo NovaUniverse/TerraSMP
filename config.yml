@@ -5,3 +5,5 @@ spawn_yaw: 0
 spawn_pitch: 0
 
 whitelist_player_after_join: false
+
+faction_nerf_player_limit: 10

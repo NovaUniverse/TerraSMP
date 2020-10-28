@@ -22,6 +22,10 @@ public class DropPlayerHeadsOnKill extends NovaModule implements Listener {
 	public void onPlayerDeath(PlayerDeathEvent e) {
 		Player player = e.getEntity();
 
+		if(player.getName().toLowerCase().startsWith("pvplogger")) {
+			return;
+		}
+		
 		if (player.getKiller() != null) {
 			ItemStack item = new ItemStack(Material.SKULL_ITEM, 1, (short) SkullType.PLAYER.ordinal());
 			SkullMeta meta = (SkullMeta) item.getItemMeta();
