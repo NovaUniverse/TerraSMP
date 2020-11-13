@@ -32,7 +32,6 @@ import com.massivecraft.factions.entity.MPlayer;
 
 import net.zeeraa.novacore.commons.NovaCommons;
 import net.zeeraa.novacore.commons.log.Log;
-import net.zeeraa.novacore.commons.utils.TextUtils;
 import net.zeeraa.novacore.spigot.command.CommandRegistry;
 import net.zeeraa.novacore.spigot.novaplugin.NovaPlugin;
 import net.zeeraa.terrasmp.terrasmp.commands.map.MapCommand;
@@ -274,7 +273,7 @@ public class TerraSMP extends NovaPlugin implements Listener {
 
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlayerDeath(PlayerDeathEvent e) {
-		String newMessage = ChatColor.DARK_GRAY + "[" + ChatColor.DARK_RED + TextUtils.ICON_SKULL_AND_CROSSBONES + ChatColor.DARK_GRAY + "] " + ChatColor.RED + e.getDeathMessage();
+		String newMessage = ChatColor.DARK_GRAY + "[" + ChatColor.RED + ChatColor.BOLD + "*" + ChatColor.RESET + ChatColor.DARK_GRAY + "] " + ChatColor.RED + e.getDeathMessage();
 		e.setDeathMessage(newMessage);
 	}
 

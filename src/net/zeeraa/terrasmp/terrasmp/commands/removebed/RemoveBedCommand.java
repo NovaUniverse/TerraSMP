@@ -7,10 +7,11 @@ import org.bukkit.permissions.PermissionDefault;
 
 import net.zeeraa.novacore.spigot.command.AllowedSenders;
 import net.zeeraa.novacore.spigot.command.NovaCommand;
+import net.zeeraa.terrasmp.terrasmp.TerraSMP;
 
 public class RemoveBedCommand extends NovaCommand {
 	public RemoveBedCommand() {
-		super("removebedlocation");
+		super("removebedlocation", TerraSMP.getInstance());
 
 		setAliases(generateAliasList("removebed"));
 

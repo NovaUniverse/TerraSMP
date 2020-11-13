@@ -1,6 +1,7 @@
 package net.zeeraa.terrasmp.terrasmp.commands.terrasmp.fake;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionDefault;
@@ -26,6 +27,7 @@ public class FakeJoin extends NovaSubCommand {
 		Player player = (Player) sender;
 
 		Bukkit.getServer().broadcastMessage(PlayerMessages.getJoinMessage(player));
+		Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "The join message above for " + player.getName() + " is fake");
 
 		return true;
 	}

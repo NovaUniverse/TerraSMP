@@ -7,11 +7,12 @@ import org.bukkit.permissions.PermissionDefault;
 
 import net.zeeraa.novacore.spigot.command.AllowedSenders;
 import net.zeeraa.novacore.spigot.command.NovaCommand;
+import net.zeeraa.terrasmp.terrasmp.TerraSMP;
 import net.zeeraa.terrasmp.terrasmp.modules.TerraSMPShop;
 
 public class ShopCommand extends NovaCommand {
 	public ShopCommand() {
-		super("shop");
+		super("shop", TerraSMP.getInstance());
 
 		setAllowedSenders(AllowedSenders.PLAYERS);
 		setDescription("Open the shop");

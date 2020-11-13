@@ -5,13 +5,14 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.permissions.PermissionDefault;
 
 import net.zeeraa.novacore.spigot.command.NovaCommand;
+import net.zeeraa.terrasmp.terrasmp.TerraSMP;
 import net.zeeraa.terrasmp.terrasmp.commands.terrasmp.debug.TerraSMPDebugCommand;
 import net.zeeraa.terrasmp.terrasmp.commands.terrasmp.fake.FakeJoin;
 import net.zeeraa.terrasmp.terrasmp.commands.terrasmp.fake.FakeLeave;
 
 public class TerraSMPCommand extends NovaCommand {
 	public TerraSMPCommand() {
-		super("terrasmp");
+		super("terrasmp", TerraSMP.getInstance());
 		
 		setDescription("Command to manage TerraSMP");
 		setPermission("terrasmp.command.terrasmp");

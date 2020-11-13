@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 
 import com.massivecraft.factions.entity.Faction;
 import com.massivecraft.factions.entity.FactionColl;
+import com.massivecraft.factions.entity.MPlayer;
 
 public class FactionUtils {
 	public static boolean hasFaction(Player player) {
@@ -13,28 +14,34 @@ public class FactionUtils {
 	}
 
 	public static boolean hasFaction(UUID uuid) {
-		Faction faction = FactionColl.get().get(uuid);
-		
-		if(faction == null) {
+		MPlayer mPlayer = MPlayer.get(uuid);
+
+		return FactionUtils.hasFaction(mPlayer);
+	}
+
+	public static boolean hasFaction(MPlayer mPlayer) {
+		Faction faction = mPlayer.getFaction();
+
+		if (faction == null) {
 			return false;
 		}
 
 		return !isSystemFaction(faction);
 	}
-	
+
 	public static boolean isSystemFaction(Faction faction) {
-		if (faction.getId().equals(FactionColl.get().getWarzone().getName())) {
+		if (faction.getId().equalsIgnoreCase(FactionColl.get().getWarzone().getId())) {
 			return true;
 		}
 
-		if (faction.getId().equals(FactionColl.get().getSafezone().getName())) {
+		if (faction.getId().equalsIgnoreCase(FactionColl.get().getSafezone().getId())) {
 			return true;
 		}
 
-		if (faction.getId().equals(FactionColl.get().getNone().getName())) {
+		if (faction.getId().equalsIgnoreCase(FactionColl.get().getNone().getId())) {
 			return true;
 		}
-		
+
 		return false;
 	}
 }

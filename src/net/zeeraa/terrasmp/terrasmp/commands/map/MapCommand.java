@@ -5,10 +5,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.permissions.PermissionDefault;
 
 import net.zeeraa.novacore.spigot.command.NovaCommand;
+import net.zeeraa.terrasmp.terrasmp.TerraSMP;
 
 public class MapCommand extends NovaCommand {
 	public MapCommand() {
-		super("map");
+		super("map", TerraSMP.getInstance());
 		setPermission("terrasmp.command.map");
 		setPermissionDefaultValue(PermissionDefault.TRUE);
 	}

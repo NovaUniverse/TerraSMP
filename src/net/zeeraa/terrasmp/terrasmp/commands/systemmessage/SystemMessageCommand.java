@@ -6,11 +6,12 @@ import org.bukkit.permissions.PermissionDefault;
 
 import net.zeeraa.novacore.spigot.command.AllowedSenders;
 import net.zeeraa.novacore.spigot.command.NovaCommand;
+import net.zeeraa.terrasmp.terrasmp.TerraSMP;
 
 public class SystemMessageCommand extends NovaCommand {
 
 	public SystemMessageCommand() {
-		super("systemmessage");
+		super("systemmessage", TerraSMP.getInstance());
 
 		setPermission("terrasmp.command.systemmessage");
 		setPermissionDefaultValue(PermissionDefault.OP);
