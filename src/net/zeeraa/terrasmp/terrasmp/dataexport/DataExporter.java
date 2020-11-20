@@ -117,6 +117,8 @@ public class DataExporter {
 			
 			factions.put(fj);
 		}
+		
+		json.put("factions", factions);
 
 		return json;
 	}

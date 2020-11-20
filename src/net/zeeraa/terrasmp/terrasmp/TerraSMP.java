@@ -232,6 +232,8 @@ public class TerraSMP extends NovaPlugin implements Listener {
 			public void run() {
 				File file = new File(getDataFolder().getPath() + File.separator + "status.json");
 				
+				//System.out.println(file.getPath());
+				
 				JSONObject data = DataExporter.export();
 				try {
 					FileUtils.writeStringToFile(file, data.toString(4), StandardCharsets.UTF_8, false);
