@@ -1,6 +1,8 @@
 package net.zeeraa.terrasmp.terrasmp;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +28,9 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.json.JSONObject;
+
 import com.massivecraft.factions.entity.Faction;
 import com.massivecraft.factions.entity.FactionColl;
 import com.massivecraft.factions.entity.MPlayer;
@@ -43,6 +48,7 @@ import net.zeeraa.terrasmp.terrasmp.data.Continent;
 import net.zeeraa.terrasmp.terrasmp.data.ContinentReader;
 import net.zeeraa.terrasmp.terrasmp.data.PlayerData;
 import net.zeeraa.terrasmp.terrasmp.data.PlayerDataManager;
+import net.zeeraa.terrasmp.terrasmp.dataexport.DataExporter;
 import net.zeeraa.terrasmp.terrasmp.misc.PlayerMessages;
 import net.zeeraa.terrasmp.terrasmp.modules.DisableEyeOfEnder;
 import net.zeeraa.terrasmp.terrasmp.modules.DropPlayerHeadsOnKill;
@@ -220,6 +226,21 @@ public class TerraSMP extends NovaPlugin implements Listener {
 		}
 
 		Log.info("TerraSMP", "Faction power nerf limit: " + FactionPowerNerf.getInstance().getPlayerLimit());
+		
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				File file = new File(getDataFolder().getPath() + File.separator + "status.json");
+				
+				JSONObject data = DataExporter.export();
+				try {
+					FileUtils.writeStringToFile(file, data.toString(4), StandardCharsets.UTF_8, false);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				
+			}
+		}.runTaskTimerAsynchronously(this, 1L, 1200L);
 	}
 
 	@Override
