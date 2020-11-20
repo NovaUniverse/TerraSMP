@@ -34,7 +34,6 @@ public class DataExporter {
 		JSONObject server = new JSONObject();
 		
 		server.put("recent-tps", NovaCore.getInstance().getVersionIndependentUtils().getRecentTps());
-		server.put("version", Bukkit.getServer().getVersion());
 		server.put("whitelist", Bukkit.hasWhitelist());
 		server.put("uptime", ManagementFactory.getRuntimeMXBean().getUptime() / 1000);
 		
