@@ -38,6 +38,7 @@ import com.massivecraft.factions.entity.MPlayer;
 import net.zeeraa.novacore.commons.NovaCommons;
 import net.zeeraa.novacore.commons.log.Log;
 import net.zeeraa.novacore.spigot.command.CommandRegistry;
+import net.zeeraa.novacore.spigot.module.modules.scoreboard.NetherBoardScoreboard;
 import net.zeeraa.novacore.spigot.novaplugin.NovaPlugin;
 import net.zeeraa.terrasmp.terrasmp.commands.map.MapCommand;
 import net.zeeraa.terrasmp.terrasmp.commands.removebed.RemoveBedCommand;
@@ -58,6 +59,7 @@ import net.zeeraa.terrasmp.terrasmp.modules.HiddenPlayers;
 import net.zeeraa.terrasmp.terrasmp.modules.NoCrystalPvP;
 import net.zeeraa.terrasmp.terrasmp.modules.TerraSMPShop;
 import net.zeeraa.terrasmp.terrasmp.modules.TerraSMPWhitelistOnJoin;
+import net.zeeraa.terrasmp.terrasmp.scoreboard.TerraSMPScoreboardManager;
 import net.zeeraa.terrasmp.terrasmp.signs.ContinentSelectorSigns;
 
 public class TerraSMP extends NovaPlugin implements Listener {
@@ -183,6 +185,9 @@ public class TerraSMP extends NovaPlugin implements Listener {
 		loadModule(DisableEyeOfEnder.class, true);
 		loadModule(FactionPowerNerf.class, true);
 		loadModule(HiddenJoinQuitMessages.class, true);
+		loadModule(TerraSMPScoreboardManager.class, true);
+
+		requireModule(NetherBoardScoreboard.class);
 
 		CommandRegistry.registerCommand(new TerraSMPCommand());
 		CommandRegistry.registerCommand(new SystemMessageCommand());
@@ -226,23 +231,25 @@ public class TerraSMP extends NovaPlugin implements Listener {
 		}
 
 		Log.info("TerraSMP", "Faction power nerf limit: " + FactionPowerNerf.getInstance().getPlayerLimit());
-		
+
 		new BukkitRunnable() {
 			@Override
 			public void run() {
 				File file = new File(getDataFolder().getPath() + File.separator + "status.json");
-				
-				//System.out.println(file.getPath());
-				
+
+				// System.out.println(file.getPath());
+
 				JSONObject data = DataExporter.export();
 				try {
 					FileUtils.writeStringToFile(file, data.toString(4), StandardCharsets.UTF_8, false);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				
+
 			}
 		}.runTaskTimerAsynchronously(this, 1L, 1200L);
+
+		NetherBoardScoreboard.getInstance().setGlobalLine(0, ChatColor.YELLOW + "" + ChatColor.BOLD + "TerraSMP");
 	}
 
 	@Override
